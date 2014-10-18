@@ -3,13 +3,11 @@ package de.frupek.battleships;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.management.modelmbean.RequiredModelMBean;
-
 import de.frupek.battleships.helpers.Util;
 
 
 public class Grid {
-	private final List<Ship> ships = new ArrayList<>();
+	private final List<Ship> ships;
 	private final List<Shot> shots = new ArrayList<>();
 	private final int rows;
 	private final int cols;
@@ -19,12 +17,14 @@ public class Grid {
 	 * @param rows Zeilen
 	 * @param cols Spalten
 	 */
-	public Grid(int rows, int cols) {
+	public Grid(int rows, int cols, List<Ship> ships) {
 		Util.require(rows >= 0, "Rowcount has to be positive");
 		Util.require(cols >= 0, "Columncount has to be positive");
+		Util.require(ships != null, "Instance of shiplist required");
 		
 		this.rows = rows;
 		this.cols = cols;
+		this.ships = ships;
 	}
 
 	/**
