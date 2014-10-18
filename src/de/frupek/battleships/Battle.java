@@ -19,48 +19,52 @@ import com.tinkerforge.NotConnectedException;
 import com.tinkerforge.TimeoutException;
 
 /**
- * Klasse, die auf eine Spielanfrage wartet oder eine eingehende 
- * Spielanfrage bearbeitet
+ * Klasse, die auf eine Spielanfrage wartet oder eine eingehende Spielanfrage
+ * bearbeitet
+ * 
  * @author Julius Mischok
- *
+ * 
  */
 public class Battle implements MqttCallback, TouchStateListener {
 	private final MqttAsyncClient mqttClient;
 	public final BrickletLCD20x4 lcd;
-    public final BrickletMultiTouch touch;
-    public final IPConnection ipcon;
-    
-    private Role actualRole;
-    private String actualGameTopic;
-    private int secretNumber;
-	
-    private enum Role {
-    	INITIATOR,
-    	PLAYER
-    }
-    private static final String HOST = "localhost";
-    private static final int PORT = 4223;
-    
-	public Battle(String host, int port, String brokerUri) throws MqttException, UnknownHostException, AlreadyConnectedException, IOException, TimeoutException, NotConnectedException {
+	public final BrickletMultiTouch touch;
+	public final IPConnection ipcon;
+
+	private Role actualRole;
+	private String actualGameTopic;
+	private int secretNumber;
+
+	private enum Role {
+		INITIATOR, PLAYER
+	}
+
+	private static final String HOST = "localhost";
+	private static final int PORT = 4223;
+
+	public Battle(String host, int port, String brokerUri)
+			throws MqttException, UnknownHostException,
+			AlreadyConnectedException, IOException, TimeoutException,
+			NotConnectedException {
 		this.ipcon = new IPConnection();
-        this.lcd = new BrickletLCD20x4(Conf.UID_LCD, this.getIpcon());
-        this.touch = new BrickletMultiTouch(Conf.UID_TOUCH, this.getIpcon());
-        this.getTouch().addTouchStateListener(this);
-        
-        this.getIpcon().connect(host, port);
-        
-        this.getLcd().backlightOn();
-        this.getLcd().clearDisplay();
-        
-        this.mqttClient = new MqttAsyncClient(brokerUri, MqttClient.generateClientId());
-		
+		this.lcd = new BrickletLCD20x4(Conf.UID_LCD, this.getIpcon());
+		this.touch = new BrickletMultiTouch(Conf.UID_TOUCH, this.getIpcon());
+		this.getTouch().addTouchStateListener(this);
+
+		this.getIpcon().connect(host, port);
+
+		this.getLcd().backlightOn();
+		this.getLcd().clearDisplay();
+
+		this.mqttClient = new MqttAsyncClient(brokerUri,
+				MqttClient.generateClientId());
+
 		this.getMqttClient().connect().waitForCompletion();
 		this.getMqttClient().setCallback(this);
 		this.getMqttClient().subscribe("games/#", 0);
-		
+
 		this.writeLine(0, "Zum Starten tippen");
 	}
-
 
 	private int getSecretNumber() {
 		return secretNumber;
@@ -69,7 +73,7 @@ public class Battle implements MqttCallback, TouchStateListener {
 	private void setSecretNumber(int secretNumber) {
 		this.secretNumber = secretNumber;
 	}
-	
+
 	/**
 	 * @return the lcd
 	 */
@@ -105,7 +109,7 @@ public class Battle implements MqttCallback, TouchStateListener {
 
 	@Override
 	public void deliveryComplete(IMqttDeliveryToken arg0) {
-		
+
 	}
 
 	@Override
@@ -119,12 +123,11 @@ public class Battle implements MqttCallback, TouchStateListener {
 			this.setActualRole(Role.PLAYER);
 		}
 		if (this.getActualRole().equals(Role.INITIATOR)) {
-			
+
 		}
-		
-		this.writeLine(1, new String(arg1.getPayload())+ " empfangen");
+
+		this.writeLine(1, new String(arg1.getPayload()) + " empfangen");
 	}
-	
 
 	/**
 	 * @return the actualRole
@@ -134,7 +137,8 @@ public class Battle implements MqttCallback, TouchStateListener {
 	}
 
 	/**
-	 * @param actualRole the actualRole to set
+	 * @param actualRole
+	 *            the actualRole to set
 	 */
 	private void setActualRole(Role actualRole) {
 		this.actualRole = actualRole;
@@ -142,43 +146,54 @@ public class Battle implements MqttCallback, TouchStateListener {
 
 	@Override
 	public void touchState(int state) {
-		for(int i = 0; i < 12; i++) {
-            if((state & (1 << i)) == (1 << i)) {
-            	try {
-            		if (this.getActualRole() == null){
-            			this.setActualGameTopic("games/" + System.currentTimeMillis());
-            			this.getMqttClient().publish(this.getActualGameTopic(), ("" + i).getBytes(), 0, false);
-            		}else if (this.getActualRole().equals(Role.INITIATOR)){
-            			
-            		}else if (this.getActualRole().equals(Role.PLAYER)){
-            			
-            		}
+		for (int i = 0; i < 12; i++) {
+			if ((state & (1 << i)) == (1 << i)) {
+				try {
+					if (this.getActualRole() == null) {
+						this.setActualGameTopic("games/"
+								+ System.currentTimeMillis());
+						this.getMqttClient().publish(this.getActualGameTopic(),
+								("" + i).getBytes(), 0, false);
+					} else if (this.getActualRole().equals(Role.INITIATOR)) {
+
+					} else if (this.getActualRole().equals(Role.PLAYER)) {
+						if (this.getSecretNumber() == i) {
+							this.getMqttClient().publish(
+									this.getActualGameTopic() + "/response",
+									("Das ist richtig!").getBytes(), 0, false);
+						} else {
+							this.getMqttClient().publish(
+									this.getActualGameTopic() + "/response",
+									("Das ist falsch!").getBytes(), 0, false);
+						}
+					}
 				} catch (MqttException e) {
 					e.printStackTrace();
 				}
-            }
-        }
+			}
+		}
 	}
 
-    public void writeLine(int line, String str) {
-    	try {
-    		// Clear line
-    		this.getLcd().writeLine((short)line, (short)0, "                          ");
-    		
-    		// Show new String
-			this.getLcd().writeLine((short)line, (short)0, str);
+	public void writeLine(int line, String str) {
+		try {
+			// Clear line
+			this.getLcd().writeLine((short) line, (short) 0,
+					"                          ");
+
+			// Show new String
+			this.getLcd().writeLine((short) line, (short) 0, str);
 		} catch (TimeoutException | NotConnectedException e) {
 			e.printStackTrace();
 		}
-    }
-    
-    public static void main(String[] args)throws Exception {
-    	Battle bat = new Battle(HOST, PORT, Conf.BROKER_URI);
-    	
-    	System.out.println("Press key to exit"); 
-        System.in.read();
-        bat.ipcon.disconnect();
-    }
+	}
+
+	public static void main(String[] args) throws Exception {
+		Battle bat = new Battle(HOST, PORT, Conf.BROKER_URI);
+
+		System.out.println("Press key to exit");
+		System.in.read();
+		bat.ipcon.disconnect();
+	}
 
 	public String getActualGameTopic() {
 		return actualGameTopic;
