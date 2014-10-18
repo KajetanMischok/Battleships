@@ -162,6 +162,7 @@ public class Battle implements MqttCallback, TouchStateListener {
 						this.writeLine(0, "Warte auf Antwort.");
 						this.setActualRole(Role.INITIATOR);
 					} else if (this.getActualRole().equals(Role.PLAYER)) {
+						this.getLcd().clearDisplay();
 						if (this.getSecretNumber() == i) {
 							this.getMqttClient().publish(this.getActualGameTopic() + "/response", ("Du hast verloren!").getBytes(), 0, false);
 							this.writeLine(0, "Du hast gewonnen!");
@@ -176,16 +177,11 @@ public class Battle implements MqttCallback, TouchStateListener {
 							this.getLcd().clearDisplay();
 							this.setActualRole(null);
 							this.writeLine(0, "Zum Starten tippen");
-						} catch (InterruptedException e) {
+						} catch (Exception e) {
 							e.printStackTrace();
-						} catch (TimeoutException e) {
-							e.printStackTrace();
-						} catch (NotConnectedException e) {
-							e.printStackTrace();
-						}
-						
+						} 
 					}
-				} catch (MqttException e) {
+				} catch (Exception e) {
 					e.printStackTrace();
 				}
             }
