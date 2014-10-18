@@ -44,6 +44,7 @@ public class Battle implements MqttCallback, TouchStateListener {
         this.getIpcon().connect(host, port);
         
         this.getLcd().backlightOn();
+        this.getLcd().clearDisplay();
         
         this.mqttClient = new MqttAsyncClient(brokerUri, MqttClient.generateClientId());
 		
@@ -94,7 +95,7 @@ public class Battle implements MqttCallback, TouchStateListener {
 
 	@Override
 	public void messageArrived(String arg0, MqttMessage arg1) throws Exception {
-		this.writeLine(1, arg1.getPayload().toString()+ " empfangen");
+		this.writeLine(1, new String(arg1.getPayload())+ " empfangen");
 	}
 	
 
@@ -105,11 +106,7 @@ public class Battle implements MqttCallback, TouchStateListener {
             	try {
 					this.getMqttClient().publish("games/" + System.currentTimeMillis(), ("" + i).getBytes(), 0, false);
 					
-				} catch (MqttPersistenceException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
 				} catch (MqttException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
             }
