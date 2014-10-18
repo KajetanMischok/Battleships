@@ -3,8 +3,6 @@ package de.frupek.battleships;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.management.modelmbean.RequiredModelMBean;
-
 import de.frupek.battleships.helpers.Util;
 
 
