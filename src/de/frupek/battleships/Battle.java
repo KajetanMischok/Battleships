@@ -120,7 +120,7 @@ public class Battle implements MqttCallback, TouchStateListener {
 			this.setActualRole(Role.PLAYER);
 			this.setActualGameTopic(arg0);
 		}
-		if (this.getActualRole().toString().equals(Role.INITIATOR.toString())) {
+		if (this.getActualRole().equals(Role.INITIATOR)) {
 			// Das ist die Antwort!
 			this.getLcd().clearDisplay();
 			this.writeLine(0, new String(arg1.getPayload()));
