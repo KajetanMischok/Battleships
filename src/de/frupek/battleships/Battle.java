@@ -142,17 +142,29 @@ public class Battle implements MqttCallback, TouchStateListener {
 
 	@Override
 	public void touchState(int state) {
-		for(int i = 0; i < 12; i++) {
-            if((state & (1 << i)) == (1 << i)) {
-            	try {
-            		if (this.getActualRole() == null){
-            			this.setActualGameTopic("games/" + System.currentTimeMillis());
-            			this.getMqttClient().publish(this.getActualGameTopic(), ("" + i).getBytes(), 0, false);
-            		}else if (this.getActualRole().equals(Role.INITIATOR)){
-            			
-            		}else if (this.getActualRole().equals(Role.PLAYER)){
-            			
-            		}
+		for (int i = 0; i < 12; i++) {
+			if ((state & (1 << i)) == (1 << i)) {
+				try {
+					if (this.getActualRole() == null) {
+						this.setActualGameTopic("games/"
+								+ System.currentTimeMillis());
+						this.getMqttClient().publish(this.getActualGameTopic(),
+								("" + i).getBytes(), 0, false);
+						this.writeLine(0, "Warte auf Antwort.");
+					} else if (this.getActualRole().equals(Role.INITIATOR)) {
+
+					} else if (this.getActualRole().equals(Role.PLAYER)) {
+						if (this.getSecretNumber() == i) {
+							this.getMqttClient().publish(this.getActualGameTopic() + "/response",
+									("Du hast verloren!").getBytes(), 0, false);
+							this.writeLine(0, "Richtig! Du hast gewonnen!");
+						} else {
+							this.getMqttClient().publish(
+									this.getActualGameTopic() + "/response",
+									("Du hast gewonnen!").getBytes(), 0, false);
+							this.writeLine(0, "Falsch! Du hast verloren!");
+						}
+					}
 				} catch (MqttException e) {
 					e.printStackTrace();
 				}
