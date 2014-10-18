@@ -100,6 +100,7 @@ public class Battle implements MqttCallback, TouchStateListener {
 
 	@Override
 	public void connectionLost(Throwable arg0) {
+		arg0.printStackTrace();
 		System.out.println("CONNECTION LOST");
 	}
 
@@ -158,19 +159,34 @@ public class Battle implements MqttCallback, TouchStateListener {
 						this.getMqttClient().subscribe(this.actualGameTopic + "/response", 0);
 						this.getMqttClient().publish(this.getActualGameTopic(),	("" + i).getBytes(), 0, false);
 						this.writeLine(0, "Warte auf Antwort.");
+						this.setActualRole(Role.INITIATOR);
 					} else if (this.getActualRole().equals(Role.INITIATOR)) {
 
 					} else if (this.getActualRole().equals(Role.PLAYER)) {
+						System.out.println("Role is Player.");
 						if (this.getSecretNumber() == i) {
-							this.getMqttClient().publish(this.getActualGameTopic() + "/response",
-									("Du hast verloren!").getBytes(), 0, false);
-							this.writeLine(0, "Richtig! Du hast gewonnen!");
+							this.getMqttClient().publish(this.getActualGameTopic() + "/response", ("Du hast verloren!").getBytes(), 0, false);
+							this.writeLine(0, "Du hast gewonnen!");
 						} else {
-							this.getMqttClient().publish(
-									this.getActualGameTopic() + "/response",
-									("Du hast gewonnen!").getBytes(), 0, false);
-							this.writeLine(0, "Falsch! Du hast verloren!");
+							this.getMqttClient().publish(this.getActualGameTopic() + "/response", ("Du hast gewonnen!").getBytes(), 0, false);
+							this.writeLine(0, "Du hast verloren!");
 						}
+						
+						try {
+							Thread.sleep(3000);
+							this.getMqttClient().subscribe("games/#", 0);
+							
+							this.getLcd().clearDisplay();
+							this.setActualRole(null);
+							this.writeLine(0, "Zum Starten tippen");
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						} catch (TimeoutException e) {
+							e.printStackTrace();
+						} catch (NotConnectedException e) {
+							e.printStackTrace();
+						}
+						
 					}
 				} catch (MqttException e) {
 					e.printStackTrace();
