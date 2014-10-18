@@ -9,6 +9,7 @@ import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
 
 import com.tinkerforge.AlreadyConnectedException;
 import com.tinkerforge.BrickletAmbientLight;
@@ -102,30 +103,13 @@ public class Battle implements MqttCallback, TouchStateListener {
 		for(int i = 0; i < 12; i++) {
             if((state & (1 << i)) == (1 << i)) {
             	try {
-					this.writeLine(2, "key " + i + " touched");
+					this.getMqttClient().publish("games/" + System.currentTimeMillis(), ("" + i).getBytes(), 0, false);
 					
-					// Set to value
-					if (i>=2) {
-						this.setCallbackPeriod(250 * i);
-					}
-					
-					// Decrease
-					if (i == 0) {
-						this.setCallbackPeriod(Math.max(0, this.getCallbackPeriod()-250));
-					}
-					
-					// Increase
-					if (i == 1) {
-						this.setCallbackPeriod(Math.max(0, this.getCallbackPeriod()+250));
-					}
-					
-					// Configure an show new period
-					this.getAl().setIlluminanceCallbackPeriod(this.getCallbackPeriod());
-					this.writeLine(1, "period: " + this.getCallbackPeriod());
-					
-				} catch (TimeoutException e) {
+				} catch (MqttPersistenceException e) {
+					// TODO Auto-generated catch block
 					e.printStackTrace();
-				} catch (NotConnectedException e) {
+				} catch (MqttException e) {
+					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
             }
