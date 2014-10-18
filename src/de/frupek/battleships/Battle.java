@@ -129,6 +129,7 @@ public class Battle implements MqttCallback, TouchStateListener {
 			
 			this.getLcd().clearDisplay();
 			this.setActualRole(null);
+			this.getMqttClient().subscribe("games/#", 0);
 			this.writeLine(0, "Zum Starten tippen");
 		}
 	}
