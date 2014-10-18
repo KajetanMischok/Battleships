@@ -31,8 +31,17 @@ public class Battle implements MqttCallback, TouchStateListener {
     public final IPConnection ipcon;
     
     private Role actualRole;
+    private int secretNumber;
 	
-    private enum Role {
+	private int getSecretNumber() {
+		return secretNumber;
+	}
+
+	private void setSecretNumber(int secretNumber) {
+		this.secretNumber = secretNumber;
+	}
+
+	private enum Role {
     	INITIATOR,
     	PLAYER
     }
@@ -99,9 +108,35 @@ public class Battle implements MqttCallback, TouchStateListener {
 
 	@Override
 	public void messageArrived(String arg0, MqttMessage arg1) throws Exception {
+		if (this.getActualRole() == null) {
+			// Das ist eine neue Challenge
+			Integer i = Integer.parseInt(new String(arg1.getPayload()));
+			this.setSecretNumber(i);
+			this.writeLine(0, "Bitte raten!");
+			this.writeLine(1, "Geratene Zahl tippen.");
+			this.setActualRole(Role.PLAYER);
+		}
+		if (this.getActualRole().equals(Role.INITIATOR)) {
+			
+		}
+		
 		this.writeLine(1, new String(arg1.getPayload())+ " empfangen");
 	}
 	
+
+	/**
+	 * @return the actualRole
+	 */
+	private Role getActualRole() {
+		return actualRole;
+	}
+
+	/**
+	 * @param actualRole the actualRole to set
+	 */
+	private void setActualRole(Role actualRole) {
+		this.actualRole = actualRole;
+	}
 
 	@Override
 	public void touchState(int state) {
