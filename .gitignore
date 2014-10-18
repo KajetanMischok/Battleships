@@ -16,3 +16,4 @@ Servers
 RemoteSystemsTempFiles
 
 */build/
+/bin
