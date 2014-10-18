@@ -49,6 +49,8 @@ public class Battle implements MqttCallback, TouchStateListener {
 		this.getMqttClient().connect().waitForCompletion();
 		this.getMqttClient().setCallback(this);
 		this.getMqttClient().subscribe("games/#", 0);
+		
+		this.writeLine(0, "Zum Starten tippen");
 	}
 
 	/**
@@ -129,4 +131,16 @@ public class Battle implements MqttCallback, TouchStateListener {
             }
         }
 	}
+
+    public void writeLine(int line, String str) {
+    	try {
+    		// Clear line
+    		this.getLcd().writeLine((short)line, (short)0, "                          ");
+    		
+    		// Show new String
+			this.getLcd().writeLine((short)line, (short)0, str);
+		} catch (TimeoutException | NotConnectedException e) {
+			e.printStackTrace();
+		}
+    }
 }
