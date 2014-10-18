@@ -105,6 +105,7 @@ public class Battle implements MqttCallback, TouchStateListener {
 		for(int i = 0; i < 12; i++) {
             if((state & (1 << i)) == (1 << i)) {
             	try {
+            		
 					this.getMqttClient().publish("games/" + System.currentTimeMillis(), ("" + i).getBytes(), 0, false);
 					
 				} catch (MqttPersistenceException e) {
