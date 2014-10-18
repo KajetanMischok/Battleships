@@ -117,12 +117,12 @@ public class Battle implements MqttCallback, TouchStateListener {
 			this.writeLine(0, "Bitte raten!");
 			this.writeLine(1, "Geratene Zahl tippen.");
 			this.setActualRole(Role.PLAYER);
+			this.setActualGameTopic(arg0);
 		}
 		if (this.getActualRole().equals(Role.INITIATOR)) {
-			
+			// Das ist die Antwort!
+			this.writeLine(0, new String(arg1.getPayload()));
 		}
-		
-		this.writeLine(1, new String(arg1.getPayload())+ " empfangen");
 	}
 	
 
