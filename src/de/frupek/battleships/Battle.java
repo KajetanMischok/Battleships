@@ -127,4 +127,12 @@ public class Battle implements MqttCallback, TouchStateListener {
 			e.printStackTrace();
 		}
     }
+    
+    public static void main(String[] args)throws Exception {
+    	Battle bat = new Battle(HOST, PORT, "tcp://localhost:1883");
+    	
+    	System.out.println("Press key to exit"); 
+        System.in.read();
+        bat.ipcon.disconnect();
+    }
 }
