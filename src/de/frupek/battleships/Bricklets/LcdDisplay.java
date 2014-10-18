@@ -1,4 +1,4 @@
-package de.frupek.battleships.BrickletLCD20x4;
+package de.frupek.battleships.Bricklets;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
@@ -40,7 +40,6 @@ public class LcdDisplay extends Bricklet<BrickletLCD20x4> {
 	}
 	
 	public void showGrid(Grid grid){
-		for ()
 	}
 
 	private void clearDisplay() throws TimeoutException, NotConnectedException {
