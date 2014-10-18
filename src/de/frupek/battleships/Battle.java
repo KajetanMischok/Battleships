@@ -94,7 +94,7 @@ public class Battle implements MqttCallback, TouchStateListener {
 
 	@Override
 	public void messageArrived(String arg0, MqttMessage arg1) throws Exception {
-		System.out.println("MESSAGE " + arg1.getPayload().toString() + " RECEIVED IN " + arg0);
+		this.writeLine(1, arg1.getPayload().toString()+ " empfangen");
 	}
 	
 
