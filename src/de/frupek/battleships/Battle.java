@@ -31,19 +31,19 @@ public class Battle implements MqttCallback, TouchStateListener {
 	
 	private static final String HOST = "localhost";
     private static final int PORT = 4223;
-    private static final String UID_LCD = "od5";
-    private static final String UID_TOUCH = "jVL";
     
     public final BrickletLCD20x4 lcd;
     public final BrickletMultiTouch touch;
     public final IPConnection ipcon;
 	
-	public Battle(String host, int port, String brokerUri) throws MqttException, UnknownHostException, AlreadyConnectedException, IOException {
+	public Battle(String host, int port, String brokerUri) throws MqttException, UnknownHostException, AlreadyConnectedException, IOException, TimeoutException, NotConnectedException {
 		this.ipcon = new IPConnection();
-        this.lcd = new BrickletLCD20x4(UID_LCD, this.getIpcon());
-        this.touch = new BrickletMultiTouch(UID_TOUCH, this.getIpcon());
+        this.lcd = new BrickletLCD20x4(Conf.UID_LCD, this.getIpcon());
+        this.touch = new BrickletMultiTouch(Conf.UID_TOUCH, this.getIpcon());
         
         this.getIpcon().connect(host, port);
+        
+        this.getLcd().backlightOn();
         
         this.mqttClient = new MqttAsyncClient(brokerUri, MqttClient.generateClientId());
 		
@@ -129,7 +129,7 @@ public class Battle implements MqttCallback, TouchStateListener {
     }
     
     public static void main(String[] args)throws Exception {
-    	Battle bat = new Battle(HOST, PORT, "tcp://localhost:1883");
+    	Battle bat = new Battle(HOST, PORT, Conf.BROKER_URI);
     	
     	System.out.println("Press key to exit"); 
         System.in.read();
