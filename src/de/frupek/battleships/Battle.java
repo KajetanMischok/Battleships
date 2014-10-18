@@ -31,6 +31,7 @@ public class Battle implements MqttCallback, TouchStateListener {
     public final IPConnection ipcon;
     
     private Role actualRole;
+    private String actualGameTopic;
 	
     private enum Role {
     	INITIATOR,
@@ -108,9 +109,14 @@ public class Battle implements MqttCallback, TouchStateListener {
 		for(int i = 0; i < 12; i++) {
             if((state & (1 << i)) == (1 << i)) {
             	try {
-            		
-					this.getMqttClient().publish("games/" + System.currentTimeMillis(), ("" + i).getBytes(), 0, false);
-					
+            		if (this.getActualRole() == null){
+            			this.setActualGameTopic("games/" + System.currentTimeMillis());
+            			this.getMqttClient().publish(this.getActualGameTopic(), ("" + i).getBytes(), 0, false);
+            		}else if (this.getActualRole().equals(Role.INITIATOR)){
+            			
+            		}else if (this.getActualRole().equals(Role.PLAYER)){
+            			
+            		}
 				} catch (MqttException e) {
 					e.printStackTrace();
 				}
@@ -137,4 +143,20 @@ public class Battle implements MqttCallback, TouchStateListener {
         System.in.read();
         bat.ipcon.disconnect();
     }
+
+	public Role getActualRole() {
+		return actualRole;
+	}
+
+	public void setActualRole(Role actualRole) {
+		this.actualRole = actualRole;
+	}
+
+	public String getActualGameTopic() {
+		return actualGameTopic;
+	}
+
+	public void setActualGameTopic(String actualGameTopic) {
+		this.actualGameTopic = actualGameTopic;
+	}
 }
