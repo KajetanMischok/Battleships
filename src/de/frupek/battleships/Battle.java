@@ -9,10 +9,8 @@ import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
-import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
 
 import com.tinkerforge.AlreadyConnectedException;
-import com.tinkerforge.BrickletAmbientLight;
 import com.tinkerforge.BrickletLCD20x4;
 import com.tinkerforge.BrickletMultiTouch;
 import com.tinkerforge.BrickletMultiTouch.TouchStateListener;
@@ -28,15 +26,19 @@ import com.tinkerforge.TimeoutException;
  */
 public class Battle implements MqttCallback, TouchStateListener {
 	private final MqttAsyncClient mqttClient;
-	
-	private static final String HOST = "localhost";
-    private static final int PORT = 4223;
-   
-    
-    public final BrickletLCD20x4 lcd;
+	public final BrickletLCD20x4 lcd;
     public final BrickletMultiTouch touch;
     public final IPConnection ipcon;
+    
+    private Role actualRole;
 	
+    private enum Role {
+    	INITIATOR,
+    	PLAYER
+    }
+    private static final String HOST = "localhost";
+    private static final int PORT = 4223;
+    
 	public Battle(String host, int port, String brokerUri) throws MqttException, UnknownHostException, AlreadyConnectedException, IOException, TimeoutException, NotConnectedException {
 		this.ipcon = new IPConnection();
         this.lcd = new BrickletLCD20x4(Conf.UID_LCD, this.getIpcon());
