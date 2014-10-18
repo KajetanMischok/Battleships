@@ -31,8 +31,8 @@ public class Battle implements MqttCallback, TouchStateListener {
 	
 	private static final String HOST = "localhost";
     private static final int PORT = 4223;
-    private static final String UID_LCD = "od5";
-    private static final String UID_TOUCH = "jVL";
+    private static final String UID_LCD = "odc";
+    private static final String UID_TOUCH = "jSC";
     
     public final BrickletLCD20x4 lcd;
     public final BrickletMultiTouch touch;
@@ -42,7 +42,7 @@ public class Battle implements MqttCallback, TouchStateListener {
 		this.ipcon = new IPConnection();
         this.lcd = new BrickletLCD20x4(UID_LCD, this.getIpcon());
         this.touch = new BrickletMultiTouch(UID_TOUCH, this.getIpcon());
-        
+        this.getTouch().addTouchStateListener(this);
         this.getIpcon().connect(host, port);
         
         this.mqttClient = new MqttAsyncClient(brokerUri, MqttClient.generateClientId());
@@ -103,6 +103,8 @@ public class Battle implements MqttCallback, TouchStateListener {
 		for(int i = 0; i < 12; i++) {
             if((state & (1 << i)) == (1 << i)) {
             	try {
+            		System.out.println("Touched: " + i);
+            		
 					this.getMqttClient().publish("games/" + System.currentTimeMillis(), ("" + i).getBytes(), 0, false);
 					
 				} catch (MqttPersistenceException e) {
@@ -129,7 +131,7 @@ public class Battle implements MqttCallback, TouchStateListener {
     }
     
     public static void main(String[] args)throws Exception {
-    	Battle bat = new Battle(HOST, PORT, "tcp://localhost:1883");
+    	Battle bat = new Battle(HOST, PORT, "tcp://192.168.179.189:1883");
     	
     	System.out.println("Press key to exit"); 
         System.in.read();
